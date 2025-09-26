@@ -241,6 +241,8 @@ MonoBehaviour:
   chunk: {fileID: 1068914053}
   score: 0
   scroreTMpro: {fileID: 361787644}
+  player: {fileID: 266843590}
+  lastTarget: {fileID: 0}
 --- !u!4 &180737569
 Transform:
   m_ObjectHideFlags: 0
@@ -437,18 +439,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rb: {fileID: 266843591}
-  oldOrNew: 1
+  oldOrNew: 0
   zMovementInput: 0
   xMovementInput: 0
-  playerMaxMovementSpeed: 10
+  playerMaxMovementSpeed: 3
   directionMovement: {x: 0, y: 0, z: 0}
   puissanceSaut: 30
   vitesseDeChuteMax: 150
   vitesseVerticaleActuelle: 0
   gravityAcceleration: 120
   jumpV3: {x: 0, y: 0, z: 0}
-  spherecastOuBricolage: 0
-  sphereCastDistance: 0.6
+  spherecastOuBricolage: 1
+  sphereCastDistance: 0.7
   sphereCastRadius: 0.45
   onGround: 0
   collisionY: 0
@@ -1443,7 +1445,7 @@ MonoBehaviour:
   cubeGameobjectArray: []
   MeshGenerationOrInstantiateCube: 0
   cubeGameobject: {fileID: 997910373573941189, guid: 6c6b3f0059f242240a8083420c43fa83, type: 3}
-  randomChunk: 0
+  randomChunk: 1
   xOrg: 12
   yOrg: 1
 --- !u!4 &1068914055

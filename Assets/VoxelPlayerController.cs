@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class VoxelPlayerController : MonoBehaviour
 {
+    // Les blocs de codes contenant les algorythmes interressant sont marque avec ca:
+    // §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+
     // rigidBody
     [Header("rigidBody")]
     public Rigidbody rb;
@@ -64,10 +67,7 @@ public class VoxelPlayerController : MonoBehaviour
     public GameObject testArrow;
     public bool newPlayerClickOrOld;
     public bool FaceOrientationLog;
-    
-
-    // visualiser Vector3
-    //public GameObject vecteurPointeur;
+    public bool clicBreakingOrAutomatic;
 
     void Start()
     {
@@ -81,10 +81,7 @@ public class VoxelPlayerController : MonoBehaviour
         //PlayerJump();        
         PlayerCameraMovement();
         MouseWheelScroll();
-        if (Input.GetMouseButton(1))
-        {
-            //Shoot();
-        }
+
         //if (Input.GetKeyDown(KeyCode.Space))
         //    {
         ////    vitesseVerticaleActuelle = puissanceSaut;
@@ -97,6 +94,7 @@ public class VoxelPlayerController : MonoBehaviour
         if (!onGround) // bricolage pour simuler la collision du sol
         {
             Gravity();
+            vitesseVerticaleActuelle = 0;
             justHitGround = false;
         }
         else
@@ -109,7 +107,7 @@ public class VoxelPlayerController : MonoBehaviour
         }
         GroundDetection();
         PlayerJump();
-        if (oldOrNew)
+        if (oldOrNew) // pour tester differents trucs
         {
             PlayerXZMovement();
         }
@@ -128,10 +126,10 @@ public class VoxelPlayerController : MonoBehaviour
     void FixedUpdate()
     {
         //rb.MovePosition(rb.position + new Vector3(directionMovement.normalized.x * playerMaxMovementSpeed, vitesseVerticaleActuelle, directionMovement.normalized.z * playerMaxMovementSpeed) * Time.fixedDeltaTime);
-        rb.AddForce(new Vector3(directionMovement.normalized.x * playerMaxMovementSpeed, vitesseVerticaleActuelle, directionMovement.normalized.z * playerMaxMovementSpeed) * Time.fixedDeltaTime);
+        //rb.AddForce(new Vector3(directionMovement.normalized.x * playerMaxMovementSpeed, vitesseVerticaleActuelle, directionMovement.normalized.z * playerMaxMovementSpeed) * Time.fixedDeltaTime);
     }
 
-    void PlayerXZMovement()
+    void PlayerXZMovement() // OBSOLETE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     {
         zMovementInput = Input.GetAxisRaw("Vertical"); // Input.GetAxis() donne un float adoucis entre 1 et -1
         xMovementInput = Input.GetAxisRaw("Horizontal"); // Input.GetAxisRaw() donne 1, 0 ou -1
@@ -153,7 +151,7 @@ public class VoxelPlayerController : MonoBehaviour
 
         if (xMovementInput != 0 || zMovementInput != 0)
         {
-            rb.position = transform.position + directionMovement.normalized * playerMaxMovementSpeed * Time.fixedDeltaTime; // /!\/!\/!\/!\/!\/!\  retirer transform.position pour éviter la dérive angulaire    
+            rb.position += directionMovement.normalized * playerMaxMovementSpeed * Time.fixedDeltaTime; // /!\/!\/!\/!\/!\/!\  retirer transform.position pour éviter la dérive angulaire    
             //transform.position += directionMovement.normalized * playerMaxMovementSpeed * Time.fixedDeltaTime; // Vector3.normalized limite le résultat à 1 ou 0 pour éviter de bouger plus vite que normal en diagonale
 
             //rb.MovePosition(rb.position + (directionMovement.normalized * playerMaxMovementSpeed * Time.deltaTime));
@@ -163,6 +161,8 @@ public class VoxelPlayerController : MonoBehaviour
     void PlayerXZMovementNew()
     {
         directionMovement = (transform.forward * Input.GetAxisRaw("Vertical")) + (transform.right * Input.GetAxisRaw("Horizontal")); //+ jumpV3; // Input.GetAxis() donne un float adoucis entre 1 et -1
+        rb.position += directionMovement.normalized * playerMaxMovementSpeed * Time.fixedDeltaTime;
+        directionMovement.y = vitesseVerticaleActuelle;
         //directionMovement = Input.GetAxisRaw("Horizontal"); // Input.GetAxisRaw() donne 1, 0 ou -1        
 
         //rb.position = transform.position + directionMovement.normalized * playerMaxMovementSpeed * Time.fixedDeltaTime;
@@ -175,6 +175,7 @@ public class VoxelPlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             vitesseVerticaleActuelle = puissanceSaut;
+
             //directionMovement += new Vector3(transform.position, vitesseVerticaleActuelle, transform.position);
 
             //transform.position += transform.up * vitesseVerticaleActuelle * Time.deltaTime; // fait monter la vitesse verticale d'un coup
@@ -197,9 +198,11 @@ public class VoxelPlayerController : MonoBehaviour
         if (spherecastOuBricolage)
         {
             LayerMask coucheGround = LayerMask.GetMask("Ground"); // on crée une variable couche
+
             RaycastHit gHit; // on déclare une variable RaycastHit qui permet d'avoir des informations sur se qu'a touché un Raycast
             if (Physics.SphereCast(transform.position, sphereCastRadius, -transform.up, out gHit, sphereCastDistance, coucheGround)) // le SphereCast ne voit que la couche "Ground" et ignore le reste
             {
+                Debug.Log("GROUND");
                 onGround = true;
                 collisionY = gHit.transform.position.y; //+ (sphereCastDistance + (sphereCastRadius * 2));
                                                         //if (transform.position.y > collisionY)
@@ -287,50 +290,83 @@ public class VoxelPlayerController : MonoBehaviour
         }
     }
 
-    void PlayerClickInWorld()
+    void PlayerClickInWorld() // §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
     {
         // Après la generation du chunk ou on genere un mesh / instantie des cubes de sorte que les sommets soient des ints aligner avec la grille Vector3 du monde
         // V V V V V V V V V V V V V V
 
         //1// On envoie un raycast qui recupere les coordone Vector3 du clic sur une surface quelconque avec un collider
+        // On arrondit les axes du Vector3 au Int le plus bas dans une autre variable pour pouvoir ferifier l'etape 2
 
         //2// Si une des coordonées x,y,z est un Int, ça veut dire qu'on a bien cliquer sur un bloc aligner avec la grille Vector3 du monde
         // si c'est x qui est un Int sa veut dire qu'on a cliquer sur une face aligner dans l'axe x donc c'est soit la face "Est" ou "Ouest"
         // si c'est y qui est un Int sa veut dire qu'on a cliquer sur une face aligner dans l'axe y donc c'est soit la face "Haut" ou "Bas"
         // si c'est z qui est un Int sa veut dire qu'on a cliquer sur une face aligner dans l'axe z donc c'est soit la face "Nord" ou "Sud"
+        // Comme les hitbox des blocs s'intersectent ( x,y,z fighting ) le résultat est l'un des 2 blocs adjacents à cette coordonee
 
-        //3// on utilise l'orientation du pointeur du joueur pour determiner laquelle des 2 faces est la bonne
+        //3// on utilise l'orientation du pointeur du joueur pour determiner laquelle des 2 faces des 2 blocs est la bonne
         // Comme les blocs ont des angles de 90° qui sont alignes sur avec les axes cardinaux du monde:
         // Si la face est sur l'axe x et que le pointeur est a un angle(euler) x au dessus de 180° alors la bonne face est "Est" SINON sinon la face est "Ouest"
         // Si on regarde en haut, la bonne face est "Bas" sinon "Haut"
         // Si on regarde en face, la bonne face est "Sud" sinon "Nord"
 
-        //4// On arrondit les données du Vector3 au Int le plus bas
-        // on soustrait ou ajoute 1 a l'axe corespondant (x,y ou z) car les coordone Vector3 d'un bloc correspondent à un sommet qui est "en bas arriere a gauche"
-        // pour l'envoyer au chunk pour que le chunk puisse traduire se Vector3 en Index
+        //4// 
+        // on soustrait ou ajoute 1 a l'axe corespondant (x,y ou z) ou pas, selon le resultat de l'etape 3 et 2 pour definitivement obetenir un Vector3 qui correspond au bloc qu'on a toucher
+        // 
+        //5// On envoie se vector3 au chunk pour qu'il puisse traduire ce Vector3 en Index
+
+        // On modifie certaines de l'algorythme si l'on veut casser un bloc ou poser un bloc adjacent a la face touchee
+
         // !!!!!!!! ces operations ne fonctionnent que si x,y et z sont positif !!!!!!!!
         // !!!!!!!! pour gerer x,y ou z negatif il faut dupliquer et modifier les blocs de code pour chaques conditions donc multiplier tout par 8 mais j'ai retirer cette option pour faciliter le devellopement !!!!!!!!
 
-
-        if (Input.GetMouseButtonDown(0)) // clic gauche casser bloc
+        if (clicBreakingOrAutomatic)
         {
+            if (Input.GetMouseButtonDown(0)) // clic gauche casser bloc
+            {
+                LeftClickInWorld();
+            }
+            if (Input.GetMouseButtonDown(1)) // clic droit placer bloc
+            {
+                RightClickInWorld();
+            }
+        }
+        else
+        {
+            if (Input.GetMouseButtonDown(0)) // clic gauche casser bloc
+            {
+                LeftClickInWorld();
+            }
+            if (Input.GetMouseButtonDown(1)) // clic droit placer bloc
+            {
+                RightClickInWorld();
+            }
+        }
+
+
+        
+    }
+
+    void LeftClickInWorld()
+    {
+        
             RaycastHit hit1;
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray, out hit1, pointerHitRange)) // On envoie un raycast qui recupere les coordone Vector3 du clic sur une surface quelconque avec un collider
+            if (Physics.Raycast(ray, out hit1, pointerHitRange)) //1
             {
                 clickHitWorldPosition = hit1.point;
 
                 roundedClickHitWorldPosition = new Vector3(Mathf.FloorToInt(clickHitWorldPosition.x), Mathf.FloorToInt(clickHitWorldPosition.y), Mathf.FloorToInt(clickHitWorldPosition.z));
 
                 //X
-                if (clickHitWorldPosition.x == Mathf.Ceil(clickHitWorldPosition.x)) // si on tape une face qui est en coordonée int // informe aussi sur quel axe cardinal est la face qu'on touche xyz // Mathf.Ceil arondit en haut
+                if (clickHitWorldPosition.x == Mathf.Ceil(clickHitWorldPosition.x)) //2 // si on tape une face qui est en coordonée int // informe aussi sur quel axe cardinal est la face qu'on touche xyz // Mathf.Ceil arondit en haut
                 {
-                    if (playerPointerDirection.y > 180) // détermine quelle face x on regarde celon l'orientation du pointeur
+                    if (playerPointerDirection.y > 180) //3 // détermine quelle face x on regarde celon l'orientation du pointeur
                                                         // car les 2 faces de 2 blocks adjacents ont les meme coordonées
                                                         // plus tard il y aura des blocs qui agirons differament selon la face qu'on touche
                     {
-                        realLeftClickBlockPosition = new Vector3(roundedClickHitWorldPosition.x - 1, roundedClickHitWorldPosition.y, roundedClickHitWorldPosition.z); // on enlève 1 à la coordonée x
+                        realLeftClickBlockPosition = new Vector3(roundedClickHitWorldPosition.x - 1, roundedClickHitWorldPosition.y, roundedClickHitWorldPosition.z); //4 // on enlève 1 à la coordonée x
                         if (FaceOrientationLog) // 
                         {
                             Debug.Log("East face");
@@ -341,9 +377,9 @@ public class VoxelPlayerController : MonoBehaviour
                             Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(0, 90, 0)); // test
                         }
                     }
-                    else
+                    else //3
                     {
-                        realLeftClickBlockPosition = roundedClickHitWorldPosition;
+                        realLeftClickBlockPosition = roundedClickHitWorldPosition; //4
                         if (FaceOrientationLog)
                         {
                             Debug.Log("West face");
@@ -357,11 +393,11 @@ public class VoxelPlayerController : MonoBehaviour
                 }
 
                 //Z
-                if (clickHitWorldPosition.z == Mathf.Ceil(clickHitWorldPosition.z))
+                if (clickHitWorldPosition.z == Mathf.Ceil(clickHitWorldPosition.z)) //2
                 {
-                    if (playerPointerDirection.y > 270 || playerPointerDirection.y < 90) // si angle est entre 270 et 90 en passant par 0
+                    if (playerPointerDirection.y > 270 || playerPointerDirection.y < 90) //3 // si angle est entre 270 et 90 en passant par 0
                     {
-                        realLeftClickBlockPosition = roundedClickHitWorldPosition;
+                        realLeftClickBlockPosition = roundedClickHitWorldPosition;//4
                         if (FaceOrientationLog)
                         {
                             Debug.Log("South face");
@@ -374,7 +410,7 @@ public class VoxelPlayerController : MonoBehaviour
                     }
                     else
                     {
-                        realLeftClickBlockPosition = new Vector3(roundedClickHitWorldPosition.x, roundedClickHitWorldPosition.y, roundedClickHitWorldPosition.z - 1);
+                        realLeftClickBlockPosition = new Vector3(roundedClickHitWorldPosition.x, roundedClickHitWorldPosition.y, roundedClickHitWorldPosition.z - 1); //4
                         if (FaceOrientationLog)
                         {
                             Debug.Log("North face");
@@ -388,11 +424,11 @@ public class VoxelPlayerController : MonoBehaviour
                 }
 
                 //Y    
-                if (clickHitWorldPosition.y == Mathf.Ceil(clickHitWorldPosition.y))
+                if (clickHitWorldPosition.y == Mathf.Ceil(clickHitWorldPosition.y)) //2
                 {
-                    if (playerPointerDirection.x > 270)
+                    if (playerPointerDirection.x > 270) //3
                     {
-                        realLeftClickBlockPosition = roundedClickHitWorldPosition;
+                        realLeftClickBlockPosition = roundedClickHitWorldPosition; //4
                         if (FaceOrientationLog)
                         {
                             Debug.Log("Bottom face");
@@ -405,7 +441,7 @@ public class VoxelPlayerController : MonoBehaviour
                     }
                     else
                     {
-                        realLeftClickBlockPosition = new Vector3(roundedClickHitWorldPosition.x, roundedClickHitWorldPosition.y - 1, roundedClickHitWorldPosition.z);
+                        realLeftClickBlockPosition = new Vector3(roundedClickHitWorldPosition.x, roundedClickHitWorldPosition.y - 1, roundedClickHitWorldPosition.z); //4
                         if (FaceOrientationLog)
                         {
                             Debug.Log("Up face");
@@ -418,11 +454,16 @@ public class VoxelPlayerController : MonoBehaviour
                     }
                 }
             }
-        }
+            void SendHitBlockData() // on envoie le Vector3 de l'emplacement de bloc qu'on veut enlever
+            {
+                testChunk.GetComponent<ChunkScript>().BreakingBlocks(realLeftClickBlockPosition);
+            }
+        
+    }
 
-        if (Input.GetMouseButtonDown(1)) // clic droit placer bloc
-        {
-
+    void RightClickInWorld()
+    {
+        
             RaycastHit hit2;
             var ray1 = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -509,19 +550,14 @@ public class VoxelPlayerController : MonoBehaviour
                     }
                 }
             }
-        }
-
-        void SendHitBlockData() // on envoie le Vector3 de l'emplacement de bloc qu'on veut enlever
-        {
-            testChunk.GetComponent<ChunkScript>().BreakingBlocks(realLeftClickBlockPosition);
-        }
+        
 
         void SendPlacedBlockData() // on envoie le Vector3 de l'emplacement de bloc qu'on veut ajouter
         {
             testChunk.GetComponent<ChunkScript>().PlacingBlocks(realBlockClickedPosition);
         }
     }
-    void ShootMode() // on instancie l'object projectile dans la rotation du pointeur
+        void ShootMode() // on instancie l'object projectile dans la rotation du pointeur
     {
         if (Input.GetMouseButtonDown(0)) // clic gauche
         {

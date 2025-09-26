@@ -15,18 +15,25 @@ public class TargetManagerScript : MonoBehaviour
     public GameObject chunk;
     public int score;
     public TMP_Text scroreTMpro;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public GameObject player;
+    public GameObject lastTarget;
+
     void Start()
     {
         currentTime = playTimeLimit;
         chunkSize = chunk.GetComponent<ChunkScript>().chunkSize;
-        Instantiate(target, new Vector3(Random.Range(0, chunkSize), Random.Range(0, chunkSize), Random.Range(0, chunkSize)) + new Vector3(0.5f, 0.5f, 0.5f), Quaternion.Euler(0, 0, 0));
+        lastTarget = Instantiate(target, new Vector3(Random.Range(0, chunkSize), Random.Range(0, chunkSize), Random.Range(0, chunkSize)) + new Vector3(0.5f, 0.5f, 0.5f), Quaternion.Euler(0, 0, 0));
         StartCoroutine("Timer");
     }
 
-    // Update is called once per frame
     void Update()
     {
+        if (Vector3.Distance(lastTarget.transform.position, player.transform.position) < 2)
+        {
+            Destroy(lastTarget);
+            InstantiateNewTarget();
+
+        }
         scroreTMpro.text = "Bloons popped : " + score.ToString();
         if (currentTime < 0)
         {
@@ -41,7 +48,7 @@ public class TargetManagerScript : MonoBehaviour
         score++;
         if (currentTime > 0)
         {
-            Instantiate(target, new Vector3(Random.Range(0, chunkSize), Random.Range(0, chunkSize), Random.Range(0, chunkSize)) + new Vector3(0.5f, 0.5f, 0.5f), Quaternion.Euler(0, 0, 0));
+            lastTarget = Instantiate(target, new Vector3(Random.Range(0, chunkSize), Random.Range(0, chunkSize), Random.Range(0, chunkSize)) + new Vector3(0.5f, 0.5f, 0.5f), Quaternion.Euler(0, 0, 0));
         }
     }
 

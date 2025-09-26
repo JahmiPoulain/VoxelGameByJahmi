@@ -9,37 +9,37 @@ public class ChunkScript : MonoBehaviour
     // /!\/!\/!\/!\/!\ Je ne sait pas suffisement manipuler les mesh donc je genere des gameobjects de cubes a la place d'un seul grand mesh optimise
     // /!\/!\/!\/!\/!\ mes optimisations ne fonctionnent pas avec les gameobjects cube car ils ont un component transform qui anulent mes optimisations
     /*
-    Le but de mon moteur voxel est de stoquer un minimum d'informations dans la RAM et de compensser se manque d'info par des calculs en runtime qui seront fait uniquement quand il le faut
-    Pour afficher un bloc a l'ecran il faut savoir ou se bloc doit apparaitre mais stoquer un Vector3 c'est caca boudin pour la RAM car c'est 3 ints
-    Pour eviter le Vector3 je genere le monde dans un Array dans lequel chaque index correspond à un Vector 3 dans le monde car cet array est remplit via un algorythme qui lit des coordonées x,y,z dans un ordre precis
-    Cette relation entre l'index de l'array et les coordonee dans le monde permet de calculer facilement l'un à partir de l'autre avec des formules
-    Donc en principe on peut creer un mesh optimiser pour representer le monde a partir d'un array sans avoir a stoquer les coordonees de chaques blocs, a la place on stoque juste d'identite du bloc avec un simple int
-    Pour l'instant l'identite d'un bloc est juste vide(0) ou plein(1)
+    Le but de mon moteur voxel est de stoquer un minimum d'informations dans la RAM et de compensser se manque d'info par des calculs en runtime qui seront fait uniquement quand il le faut.
+    Pour afficher un bloc a l'ecran il faut savoir ou se bloc doit apparaitre mais stoquer un Vector3 c'est caca boudin pour la RAM car c'est 3 ints.
+    Pour eviter le Vector3 je genere le monde dans un Array dans lequel chaque index correspond à un Vector 3 dans le monde car cet array est remplit via un algorythme qui lit des coordonées x,y,z dans un ordre precis.
+    Cette relation entre l'index de l'array et les coordonee dans le monde permet de calculer facilement l'un à partir de l'autre avec des formules.
+    Donc en principe on peut creer un mesh optimiser pour representer le monde a partir d'un array sans avoir a stoquer les coordonees de chaques blocs, a la place on stoque juste d'identite du bloc avec un simple int.
+    Pour l'instant l'identite d'un bloc est juste vide(0) ou plein(1), je pourais ajouter d'autres identites de blocs plus tard.
      */
     [Header("Dimensions du chunk")]
     public int chunkSize;
-    public int chunkHeight;
+    public int chunkHeight; 
     [Header("Arrays")]
     public int[] binaryChunkGrid;
     public int currentBlockIndexInArray;
     public Vector3 currentBlockCoordinate;
     public int indexOfClickedBlock;
     public bool setFalse;
-
+    [Header("Array de G*meObject (beurk)")]
     public GameObject[] cubeGameobjectArray;
-    [Header("Tests et modes")]
+    [Header("Tests et modes")] // pour tester des trucs ou combler un skill issue lier aux manipulations de mesh
     public bool MeshGenerationOrInstantiateCube;
     public GameObject cubeGameobject;
     public bool randomChunk;
 
-    [Header("Bruit de Perlin")]
-    //public Texture2D noiseTex;
+    [Header("Bruit de Perlin")] // je suis trop fatique pour faire ca
     public float xOrg;
     public float yOrg;
     void Start()
     {
-        binaryChunkGrid = new int[chunkSize * chunkSize * chunkHeight]; // l'array est assez grand pour contenir toute l'information du chunk  
-        cubeGameobjectArray = new GameObject[chunkSize * chunkSize * chunkHeight];
+        chunkHeight = chunkSize; // les formules actuelles ne prennent pas en compte la hauteur donc le chunkHeight doit etre egal au chunkSize
+        binaryChunkGrid = new int[chunkSize * chunkSize * chunkHeight]; // on initialise l'array pour qu'il soit assez grand pour contenir toute l'information du chunk  
+        cubeGameobjectArray = new GameObject[chunkSize * chunkSize * chunkHeight]; 
         CreateChunkArray();
     }
 
@@ -58,11 +58,8 @@ public class ChunkScript : MonoBehaviour
                 for (int x = 0; x < chunkSize; x++) // pour chaque coordonées x
                 {
                     currentBlockCoordinate.x = x;
-               
-                    float sample = Mathf.PerlinNoise(x, z);
-                    //Debug.Log(sample);
 
-                    if (randomChunk)
+                    if (randomChunk) // si on veut une generation aleatoire ou pas
                     {
                         binaryChunkGrid[currentBlockIndexInArray] = Random.Range(0, 2);
                         if (binaryChunkGrid[currentBlockIndexInArray] == 1)
@@ -92,8 +89,7 @@ public class ChunkScript : MonoBehaviour
                     }
                     else
                     {
-                        if (y < sample)
-                        {
+                        
                             binaryChunkGrid[currentBlockIndexInArray] = 1;
                             if (MeshGenerationOrInstantiateCube)
                             {
@@ -103,19 +99,7 @@ public class ChunkScript : MonoBehaviour
                             {
                                 InstantiateCube();
                             }
-                        }
-                        else
-                        {
-                            if (MeshGenerationOrInstantiateCube)
-                            {
-
-                            }
-                            else
-                            {
-                                setFalse = true;
-                                InstantiateCube();
-                            }
-                        }
+                        
                     }                 
                     currentBlockIndexInArray++;
                     //Instantiate(nextBlockToInstantiate, new Vector3(x + currentChunkCoordinate.x, y, z + currentChunkCoordinate.z), transform.rotation);
