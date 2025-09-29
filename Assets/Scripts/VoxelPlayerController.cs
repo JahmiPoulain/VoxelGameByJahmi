@@ -12,7 +12,7 @@ public class VoxelPlayerController : MonoBehaviour
 
     // mouvement X, Z
     [Header("mouvement X, Z")]
-    public bool oldOrNew;
+    public bool oldOrNew; // choisir le nouveau ou l'ancien systeme de mouvement obsolete
     public float zMovementInput;
     public float xMovementInput;
     public float playerMaxMovementSpeed;
@@ -47,16 +47,17 @@ public class VoxelPlayerController : MonoBehaviour
     public int currentIndexItemScrollBar;
 
     // pointeur
-    [Header("pointeur")]
+    [Header("pointeur")] // c'est la que la magie opere // §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
     public float pointerHitRange;
     public Vector3 playerPointerDirection; // la direction dans laquelle la camera pointe
-    public Vector3 clickHitWorldPosition;
-    public Vector3 roundedClickHitWorldPosition;
-    public Vector3 realBlockClickedPosition;
-    public Vector3 realLeftClickBlockPosition;
+    public Vector3 clickHitWorldPosition; // les coordonee crues d'un clic dans le monde
+    public Vector3 roundedClickHitWorldPosition; // les coordonee arondies 
+    public Vector3 realBlockClickedPosition; // les coordonee du clic droit a la fin de l'algo
+    public Vector3 realLeftClickBlockPosition; // les coordonee du clic gauche a la fin de l'algo
 
     [Header("Chunk")]
-    public GameObject testChunk;
+    public GameObject testChunk; // pour chuchter a l'oreil du chunk
+
     // tirer
     [Header("tirer")]
     public GameObject projectile;
@@ -71,7 +72,6 @@ public class VoxelPlayerController : MonoBehaviour
 
     void Start()
     {
-        //transform.position += transform.forward * vitesse;
         Cursor.visible = false; // Rendre la sourirs invisible
         Cursor.lockState = CursorLockMode.Locked;  // caller la souris au centre de l'écran
     }
@@ -81,7 +81,6 @@ public class VoxelPlayerController : MonoBehaviour
         //PlayerJump();        
         PlayerCameraMovement();
         MouseWheelScroll();
-
         //if (Input.GetKeyDown(KeyCode.Space))
         //    {
         ////    vitesseVerticaleActuelle = puissanceSaut;
@@ -94,42 +93,42 @@ public class VoxelPlayerController : MonoBehaviour
         if (!onGround) // bricolage pour simuler la collision du sol
         {
             Gravity();
-            vitesseVerticaleActuelle = 0;
-            justHitGround = false;
+            if (justHitGround)
+            {
+                vitesseVerticaleActuelle = 0;
+                justHitGround = false;
+            }           
         }
         else
         {
-            if (!justHitGround)
-            {
-                justHitGround = true;
-                vitesseVerticaleActuelle = 0;
-            }
+            //justHitGround = true;            
         }
         GroundDetection();
         PlayerJump();
         if (oldOrNew) // pour tester differents trucs
         {
-            PlayerXZMovement();
+            //PlayerXZMovement();
         }
         else
         {
             PlayerXZMovementNew();
         }
         Toolbar();
-
         //rb.position = transform.position + new Vector3(directionMovement.normalized.x * playerMaxMovementSpeed, (transform.up.y * vitesseVerticaleActuelle), directionMovement.normalized.z * playerMaxMovementSpeed) * Time.deltaTime;
         //rb.position += new Vector3(directionMovement.normalized.x * playerMaxMovementSpeed, vitesseVerticaleActuelle, directionMovement.normalized.z * playerMaxMovementSpeed)* Time.deltaTime;
         //Debug.Log(new Vector3(directionMovement.normalized.x * playerMaxMovementSpeed, vitesseVerticaleActuelle, directionMovement.normalized.z * playerMaxMovementSpeed) * Time.deltaTime);
-
     }
 
+    /*
     void FixedUpdate()
     {
         //rb.MovePosition(rb.position + new Vector3(directionMovement.normalized.x * playerMaxMovementSpeed, vitesseVerticaleActuelle, directionMovement.normalized.z * playerMaxMovementSpeed) * Time.fixedDeltaTime);
         //rb.AddForce(new Vector3(directionMovement.normalized.x * playerMaxMovementSpeed, vitesseVerticaleActuelle, directionMovement.normalized.z * playerMaxMovementSpeed) * Time.fixedDeltaTime);
     }
+    */
 
-    void PlayerXZMovement() // OBSOLETE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    /*
+    void PlayerXZMovement() // OBSOLETE !
     {
         zMovementInput = Input.GetAxisRaw("Vertical"); // Input.GetAxis() donne un float adoucis entre 1 et -1
         xMovementInput = Input.GetAxisRaw("Horizontal"); // Input.GetAxisRaw() donne 1, 0 ou -1
@@ -157,8 +156,9 @@ public class VoxelPlayerController : MonoBehaviour
             //rb.MovePosition(rb.position + (directionMovement.normalized * playerMaxMovementSpeed * Time.deltaTime));
         }
     }
+    */
 
-    void PlayerXZMovementNew()
+    void PlayerXZMovementNew() // mouvement normalise qui ne derive pas
     {
         directionMovement = (transform.forward * Input.GetAxisRaw("Vertical")) + (transform.right * Input.GetAxisRaw("Horizontal")); //+ jumpV3; // Input.GetAxis() donne un float adoucis entre 1 et -1
         rb.position += directionMovement.normalized * playerMaxMovementSpeed * Time.fixedDeltaTime;
@@ -202,13 +202,9 @@ public class VoxelPlayerController : MonoBehaviour
             RaycastHit gHit; // on déclare une variable RaycastHit qui permet d'avoir des informations sur se qu'a touché un Raycast
             if (Physics.SphereCast(transform.position, sphereCastRadius, -transform.up, out gHit, sphereCastDistance, coucheGround)) // le SphereCast ne voit que la couche "Ground" et ignore le reste
             {
-                Debug.Log("GROUND");
+                //Debug.Log("GROUND");
                 onGround = true;
-                collisionY = gHit.transform.position.y; //+ (sphereCastDistance + (sphereCastRadius * 2));
-                                                        //if (transform.position.y > collisionY)
-                                                        //{
-                                                        //transform.position = new Vector3(transform.position.x, collisionY, transform.position.z);
-                                                        //}
+                collisionY = gHit.transform.position.y;
             }
             else
             {
@@ -296,7 +292,7 @@ public class VoxelPlayerController : MonoBehaviour
         // V V V V V V V V V V V V V V
 
         //1// On envoie un raycast qui recupere les coordone Vector3 du clic sur une surface quelconque avec un collider
-        // On arrondit les axes du Vector3 au Int le plus bas dans une autre variable pour pouvoir ferifier l'etape 2
+        // On arrondit les axes du Vector3 au Int le plus bas dans une autre variable pour pouvoir comparer et ferifier a l'etape 2
 
         //2// Si une des coordonées x,y,z est un Int, ça veut dire qu'on a bien cliquer sur un bloc aligner avec la grille Vector3 du monde
         // si c'est x qui est un Int sa veut dire qu'on a cliquer sur une face aligner dans l'axe x donc c'est soit la face "Est" ou "Ouest"
@@ -312,8 +308,8 @@ public class VoxelPlayerController : MonoBehaviour
 
         //4// 
         // on soustrait ou ajoute 1 a l'axe corespondant (x,y ou z) ou pas, selon le resultat de l'etape 3 et 2 pour definitivement obetenir un Vector3 qui correspond au bloc qu'on a toucher
-        // 
-        //5// On envoie se vector3 au chunk pour qu'il puisse traduire ce Vector3 en Index
+
+        //5// On envoie ce vector3 au chunk pour qu'il puisse traduire ce Vector3 en Index
 
         // On modifie certaines de l'algorythme si l'on veut casser un bloc ou poser un bloc adjacent a la face touchee
 
@@ -326,238 +322,238 @@ public class VoxelPlayerController : MonoBehaviour
             {
                 LeftClickInWorld();
             }
-            if (Input.GetMouseButtonDown(1)) // clic droit placer bloc
+            else if (Input.GetMouseButtonDown(1)) // clic droit placer bloc
             {
                 RightClickInWorld();
             }
         }
         else
         {
-            if (Input.GetMouseButtonDown(0)) // clic gauche casser bloc
+            if (Input.GetMouseButton(0)) // clic gauche casser bloc
             {
                 LeftClickInWorld();
             }
-            if (Input.GetMouseButtonDown(1)) // clic droit placer bloc
+            else if (Input.GetMouseButton(1)) // clic droit placer bloc
             {
                 RightClickInWorld();
             }
         }
-
-
-        
     }
 
-    void LeftClickInWorld()
+    void LeftClickInWorld() // §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
     {
-        
-            RaycastHit hit1;
-            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray, out hit1, pointerHitRange)) //1
+        RaycastHit hit1;
+        var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray, out hit1, pointerHitRange)) //1
+        {
+            clickHitWorldPosition = hit1.point;
+
+            roundedClickHitWorldPosition = new Vector3(Mathf.FloorToInt(clickHitWorldPosition.x), Mathf.FloorToInt(clickHitWorldPosition.y), Mathf.FloorToInt(clickHitWorldPosition.z));
+
+            //X
+            if (clickHitWorldPosition.x == Mathf.Ceil(clickHitWorldPosition.x)) //2 // si on tape une face qui est en coordonée int // informe aussi sur quel axe cardinal est la face qu'on touche xyz // Mathf.Ceil arondit en haut
             {
-                clickHitWorldPosition = hit1.point;
-
-                roundedClickHitWorldPosition = new Vector3(Mathf.FloorToInt(clickHitWorldPosition.x), Mathf.FloorToInt(clickHitWorldPosition.y), Mathf.FloorToInt(clickHitWorldPosition.z));
-
-                //X
-                if (clickHitWorldPosition.x == Mathf.Ceil(clickHitWorldPosition.x)) //2 // si on tape une face qui est en coordonée int // informe aussi sur quel axe cardinal est la face qu'on touche xyz // Mathf.Ceil arondit en haut
+                if (playerPointerDirection.y > 180) //3 // détermine quelle face x on regarde celon l'orientation du pointeur
+                                                    // car les 2 faces de 2 blocks adjacents ont les meme coordonées
+                                                    // plus tard il y aura des blocs qui agirons differament selon la face qu'on touche
                 {
-                    if (playerPointerDirection.y > 180) //3 // détermine quelle face x on regarde celon l'orientation du pointeur
-                                                        // car les 2 faces de 2 blocks adjacents ont les meme coordonées
-                                                        // plus tard il y aura des blocs qui agirons differament selon la face qu'on touche
+                    realLeftClickBlockPosition = new Vector3(roundedClickHitWorldPosition.x - 1, roundedClickHitWorldPosition.y, roundedClickHitWorldPosition.z); //4 // on enlève 1 à la coordonée x
+                    SendHitBlockData();
+                    if (FaceOrientationLog) // test
                     {
-                        realLeftClickBlockPosition = new Vector3(roundedClickHitWorldPosition.x - 1, roundedClickHitWorldPosition.y, roundedClickHitWorldPosition.z); //4 // on enlève 1 à la coordonée x
-                        if (FaceOrientationLog) // 
-                        {
-                            Debug.Log("East face");
-                        }
-                        SendHitBlockData();
-                        if (enableTestArrow)
-                        {
-                            Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(0, 90, 0)); // test
-                        }
+                        Debug.Log("East face");
                     }
-                    else //3
+                    
+                    if (enableTestArrow)
                     {
-                        realLeftClickBlockPosition = roundedClickHitWorldPosition; //4
-                        if (FaceOrientationLog)
-                        {
-                            Debug.Log("West face");
-                        }
-                        SendHitBlockData();
-                        if (enableTestArrow)
-                        {
-                            Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(0, 270, 0)); // test
-                        }
+                        Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(0, 90, 0)); // test
                     }
                 }
-
-                //Z
-                if (clickHitWorldPosition.z == Mathf.Ceil(clickHitWorldPosition.z)) //2
+                else //3
                 {
-                    if (playerPointerDirection.y > 270 || playerPointerDirection.y < 90) //3 // si angle est entre 270 et 90 en passant par 0
+                    realLeftClickBlockPosition = roundedClickHitWorldPosition; //4
+                    SendHitBlockData();
+                    if (FaceOrientationLog)// test
                     {
-                        realLeftClickBlockPosition = roundedClickHitWorldPosition;//4
-                        if (FaceOrientationLog)
-                        {
-                            Debug.Log("South face");
-                        }
-                        SendHitBlockData();
-                        if (enableTestArrow)
-                        {
-                            Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(180, 0, 0)); // test
-                        }
+                        Debug.Log("West face");
                     }
-                    else
+                   
+                    if (enableTestArrow)
                     {
-                        realLeftClickBlockPosition = new Vector3(roundedClickHitWorldPosition.x, roundedClickHitWorldPosition.y, roundedClickHitWorldPosition.z - 1); //4
-                        if (FaceOrientationLog)
-                        {
-                            Debug.Log("North face");
-                        }
-                        SendHitBlockData();
-                        if (enableTestArrow)
-                        {
-                            Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(0, 0, 0)); // test
-                        }
-                    }
-                }
-
-                //Y    
-                if (clickHitWorldPosition.y == Mathf.Ceil(clickHitWorldPosition.y)) //2
-                {
-                    if (playerPointerDirection.x > 270) //3
-                    {
-                        realLeftClickBlockPosition = roundedClickHitWorldPosition; //4
-                        if (FaceOrientationLog)
-                        {
-                            Debug.Log("Bottom face");
-                        }
-                        SendHitBlockData();
-                        if (enableTestArrow)
-                        {
-                            Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(90, 0, 0)); // test
-                        }
-                    }
-                    else
-                    {
-                        realLeftClickBlockPosition = new Vector3(roundedClickHitWorldPosition.x, roundedClickHitWorldPosition.y - 1, roundedClickHitWorldPosition.z); //4
-                        if (FaceOrientationLog)
-                        {
-                            Debug.Log("Up face");
-                        }
-                        SendHitBlockData();
-                        if (enableTestArrow)
-                        {
-                            Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(270, 0, 0)); // test
-                        }
+                        Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(0, 270, 0)); // test
                     }
                 }
             }
-            void SendHitBlockData() // on envoie le Vector3 de l'emplacement de bloc qu'on veut enlever
+
+            //Z
+            if (clickHitWorldPosition.z == Mathf.Ceil(clickHitWorldPosition.z)) //2
             {
-                testChunk.GetComponent<ChunkScript>().BreakingBlocks(realLeftClickBlockPosition);
+                if (playerPointerDirection.y > 270 || playerPointerDirection.y < 90) //3 // si angle est entre 270 et 90 en passant par 0
+                {
+                    realLeftClickBlockPosition = roundedClickHitWorldPosition;//4
+                    if (FaceOrientationLog)
+                    {
+                        Debug.Log("South face");// test
+                    }
+                    SendHitBlockData();
+                    if (enableTestArrow)
+                    {
+                        Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(180, 0, 0)); // test
+                    }
+                }
+                else
+                {
+                    realLeftClickBlockPosition = new Vector3(roundedClickHitWorldPosition.x, roundedClickHitWorldPosition.y, roundedClickHitWorldPosition.z - 1); //4
+                    if (FaceOrientationLog)
+                    {
+                        Debug.Log("North face");
+                    }
+                    SendHitBlockData();
+                    if (enableTestArrow)
+                    {
+                        Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(0, 0, 0)); // test
+                    }
+                }
             }
-        
+
+            //Y    
+            if (clickHitWorldPosition.y == Mathf.Ceil(clickHitWorldPosition.y)) //2
+            {
+                if (playerPointerDirection.x > 270) //3
+                {
+                    realLeftClickBlockPosition = roundedClickHitWorldPosition; //4
+                    if (FaceOrientationLog)
+                    {
+                        Debug.Log("Bottom face");
+                    }
+                    SendHitBlockData();
+                    if (enableTestArrow)
+                    {
+                        Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(90, 0, 0)); // test
+                    }
+                }
+                else
+                {
+                    realLeftClickBlockPosition = new Vector3(roundedClickHitWorldPosition.x, roundedClickHitWorldPosition.y - 1, roundedClickHitWorldPosition.z); //4
+                    if (FaceOrientationLog)
+                    {
+                        Debug.Log("Up face");
+                    }
+                    SendHitBlockData();
+                    if (enableTestArrow)
+                    {
+                        Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(270, 0, 0)); // test
+                    }
+                }
+            }
+        }
+        void SendHitBlockData() // on envoie le Vector3 de l'emplacement de bloc qu'on veut enlever
+        {
+            testChunk.GetComponent<ChunkScript>().BreakingBlocks(realLeftClickBlockPosition);
+        }
+
     }
 
-    void RightClickInWorld()
+    void RightClickInWorld() // §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
     {
-        
-            RaycastHit hit2;
-            var ray1 = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray1, out hit2, pointerHitRange))
+        RaycastHit hit2;
+        var ray1 = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray1, out hit2, pointerHitRange))
+        {
+            clickHitWorldPosition = hit2.point;
+
+
+            roundedClickHitWorldPosition = new Vector3(Mathf.FloorToInt(clickHitWorldPosition.x), Mathf.FloorToInt(clickHitWorldPosition.y), Mathf.FloorToInt(clickHitWorldPosition.z));
+
+            //X
+            if (clickHitWorldPosition.x == Mathf.Ceil(clickHitWorldPosition.x)) // si on tape une face qui est en coordonée int // informe aussi sur quel axe cardinal est la face qu'on touche xyz // Mathf.Ceil arondit en haut
             {
-                clickHitWorldPosition = hit2.point;
-
-
-                roundedClickHitWorldPosition = new Vector3(Mathf.FloorToInt(clickHitWorldPosition.x), Mathf.FloorToInt(clickHitWorldPosition.y), Mathf.FloorToInt(clickHitWorldPosition.z));
-
-                //X
-                if (clickHitWorldPosition.x == Mathf.Ceil(clickHitWorldPosition.x)) // si on tape une face qui est en coordonée int // informe aussi sur quel axe cardinal est la face qu'on touche xyz // Mathf.Ceil arondit en haut
+                if (playerPointerDirection.y > 180) // détermine quelle face x on regarde car les 2 faces de 2 blocks adjacents ont les meme coordonées
+                                                    // permet de savoir ou poser un bloc par rapport a la face qu'on touche
                 {
-                    if (playerPointerDirection.y > 180) // détermine quelle face x on regarde car les 2 faces de 2 blocks adjacents ont les meme coordonées
-                                                        // permet de savoir ou poser un bloc par rapport a la face qu'on touche
+                    realBlockClickedPosition = roundedClickHitWorldPosition;
+                    if (FaceOrientationLog)
                     {
-                        realBlockClickedPosition = roundedClickHitWorldPosition;
-                        if (FaceOrientationLog)
-                        {
-                            Debug.Log("East face");
-                        }
-                        //Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(0, 90, 0)); // test
-                        SendPlacedBlockData();
+                        Debug.Log("East face");
                     }
-                    else
-                    {
-                        realBlockClickedPosition = new Vector3(roundedClickHitWorldPosition.x - 1, roundedClickHitWorldPosition.y, roundedClickHitWorldPosition.z); // on enlève 1 à la coordonée x
-                        if (FaceOrientationLog)
-                        {
-                            Debug.Log("West face");
-                        }
-                        //Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(0, 270, 0)); // test
-                        SendPlacedBlockData();
-                    }
+                    //Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(0, 90, 0)); // test
+                    SendPlacedBlockData();
                 }
-
-                //Z
-                if (clickHitWorldPosition.z == Mathf.Ceil(clickHitWorldPosition.z))
+                else
                 {
-                    if (playerPointerDirection.y > 270 || playerPointerDirection.y < 90) // si angle est entre 270 et 90 en passant par 0
+                    realBlockClickedPosition = new Vector3(roundedClickHitWorldPosition.x - 1, roundedClickHitWorldPosition.y, roundedClickHitWorldPosition.z); // on enlève 1 à la coordonée x
+                    if (FaceOrientationLog)
                     {
-                        realBlockClickedPosition = new Vector3(roundedClickHitWorldPosition.x, roundedClickHitWorldPosition.y, roundedClickHitWorldPosition.z - 1);
-                        if (FaceOrientationLog)
-                        {
-                            Debug.Log("South face");
-                        }
-                        //Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(180, 0, 0)); // test
-                        SendPlacedBlockData();
+                        Debug.Log("West face");
                     }
-                    else
-                    {
-                        realBlockClickedPosition = roundedClickHitWorldPosition;
-                        if (FaceOrientationLog)
-                        {
-                            Debug.Log("North face");
-                        }
-                        //Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(0, 0, 0)); // test
-                        SendPlacedBlockData();
-                    }
-                }
-
-                //Y
-                if (clickHitWorldPosition.y == Mathf.Ceil(clickHitWorldPosition.y))
-                {
-                    if (playerPointerDirection.x > 270)
-                    {
-                        realBlockClickedPosition = new Vector3(roundedClickHitWorldPosition.x, roundedClickHitWorldPosition.y - 1, roundedClickHitWorldPosition.z);
-                        if (FaceOrientationLog)
-                        {
-                            Debug.Log("Bottom face");
-                        }
-                        //Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(90, 0, 0)); // test
-                        SendPlacedBlockData();
-                    }
-                    else
-                    {
-                        realBlockClickedPosition = roundedClickHitWorldPosition;
-                        if (FaceOrientationLog)
-                        {
-                            Debug.Log("Up face");
-                        }
-                        //Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(270, 0, 0)); // test
-                        SendPlacedBlockData();
-                    }
+                    //Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(0, 270, 0)); // test
+                    SendPlacedBlockData();
                 }
             }
-        
+
+            //Z
+            if (clickHitWorldPosition.z == Mathf.Ceil(clickHitWorldPosition.z))
+            {
+                if (playerPointerDirection.y > 270 || playerPointerDirection.y < 90) // si angle est entre 270 et 90 en passant par 0
+                {
+                    realBlockClickedPosition = new Vector3(roundedClickHitWorldPosition.x, roundedClickHitWorldPosition.y, roundedClickHitWorldPosition.z - 1);
+                    if (FaceOrientationLog)
+                    {
+                        Debug.Log("South face");
+                    }
+                    //Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(180, 0, 0)); // test
+                    SendPlacedBlockData();
+                }
+                else
+                {
+                    realBlockClickedPosition = roundedClickHitWorldPosition;
+                    if (FaceOrientationLog)
+                    {
+                        Debug.Log("North face");
+                    }
+                    //Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(0, 0, 0)); // test
+                    SendPlacedBlockData();
+                }
+            }
+
+            //Y
+            if (clickHitWorldPosition.y == Mathf.Ceil(clickHitWorldPosition.y))
+            {
+                if (playerPointerDirection.x > 270)
+                {
+                    realBlockClickedPosition = new Vector3(roundedClickHitWorldPosition.x, roundedClickHitWorldPosition.y - 1, roundedClickHitWorldPosition.z);
+                    if (FaceOrientationLog)
+                    {
+                        Debug.Log("Bottom face");
+                    }
+                    //Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(90, 0, 0)); // test
+                    SendPlacedBlockData();
+                }
+                else
+                {
+                    realBlockClickedPosition = roundedClickHitWorldPosition;
+                    if (FaceOrientationLog)
+                    {
+                        Debug.Log("Up face");
+                    }
+                    //Instantiate(testArrow, clickHitWorldPosition, Quaternion.Euler(270, 0, 0)); // test
+                    SendPlacedBlockData();
+                }
+            }
+        }
+
 
         void SendPlacedBlockData() // on envoie le Vector3 de l'emplacement de bloc qu'on veut ajouter
         {
             testChunk.GetComponent<ChunkScript>().PlacingBlocks(realBlockClickedPosition);
         }
     }
-        void ShootMode() // on instancie l'object projectile dans la rotation du pointeur
+
+    void ShootMode() // on instancie l'object projectile dans la rotation du pointeur
     {
         if (Input.GetMouseButtonDown(0)) // clic gauche
         {

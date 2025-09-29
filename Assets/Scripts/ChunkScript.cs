@@ -9,8 +9,9 @@ public class ChunkScript : MonoBehaviour
     // /!\/!\/!\/!\/!\ Je ne sait pas suffisement manipuler les mesh donc je genere des gameobjects de cubes a la place d'un seul grand mesh optimise
     // /!\/!\/!\/!\/!\ mes optimisations ne fonctionnent pas avec les gameobjects cube car ils ont un component transform qui anulent mes optimisations
     /*
-    Le but de mon moteur voxel est de stoquer un minimum d'informations dans la RAM et de compensser se manque d'info par des calculs en runtime qui seront fait uniquement quand il le faut.
-    Pour afficher un bloc a l'ecran il faut savoir ou se bloc doit apparaitre mais stoquer un Vector3 c'est caca boudin pour la RAM car c'est 3 ints.
+    Le but de mon moteur voxel est d'avoir la meilleure distance d'affichage possible avec des fps respectables.
+    Pour commencer se projet je cherche donc à stoquer un minimum d'informations dans la RAM et de compensser ce manque d'info par des calculs en runtime qui seront fait uniquement quand il le faut pour afficher le monde.
+    Pour afficher un bloc a l'ecran il faut savoir ou ce bloc doit apparaitre mais stoquer un Vector3 c'est caca boudin pour la RAM car c'est 3 ints.
     Pour eviter le Vector3 je genere le monde dans un Array dans lequel chaque index correspond à un Vector 3 dans le monde car cet array est remplit via un algorythme qui lit des coordonées x,y,z dans un ordre precis.
     Cette relation entre l'index de l'array et les coordonee dans le monde permet de calculer facilement l'un à partir de l'autre avec des formules.
     Donc en principe on peut creer un mesh optimiser pour representer le monde a partir d'un array sans avoir a stoquer les coordonees de chaques blocs, a la place on stoque juste d'identite du bloc avec un simple int.
@@ -45,36 +46,32 @@ public class ChunkScript : MonoBehaviour
 
     // Cet algo remplit l'array du chunk d'une certaine façon
     // si il est remplit autrement les formules de traduction "Vector3 = Index Array" ne fonctionnent plus
-    void CreateChunkArray() // Algorythme qui sert à remplir l'array d'un chunk
+    void CreateChunkArray() // Algorythme qui sert à remplir l'array d'un chunk " de en bas, a gauche, deriere a en haut, a droite, devant "
     {
         for (int y = 0; y < chunkHeight; y++) // pour chaque coordonées y
         {
-            currentBlockCoordinate.y = y;
-
             for (int z = 0; z < chunkSize; z++) // pour chaque coordonées z
             {
-                currentBlockCoordinate.z = z;
-
                 for (int x = 0; x < chunkSize; x++) // pour chaque coordonées x
                 {
-                    currentBlockCoordinate.x = x;
+                    currentBlockCoordinate = new Vector3 (x,y,z); // on met a jour la coordonee
 
                     if (randomChunk) // si on veut une generation aleatoire ou pas
                     {
-                        binaryChunkGrid[currentBlockIndexInArray] = Random.Range(0, 2);
-                        if (binaryChunkGrid[currentBlockIndexInArray] == 1)
+                        binaryChunkGrid[currentBlockIndexInArray] = Random.Range(0, 2); // l'index = 0 ou 1 au pif
+                        if (binaryChunkGrid[currentBlockIndexInArray] == 1) // si il y a un bloc plein
                         {
                             if (MeshGenerationOrInstantiateCube) // pour changer de l'instantiation de gameobject à la manipulation de maillage (mesh)
                             {
-
+                                // il n'y a rien :(
                             }
                             else
                             {
                                 setFalse = false;
-                                InstantiateCube();
+                                InstantiateCube(); // on instantie un cube plein (setActive(true))
                             }
                         }
-                        else
+                        else // si il a un bloc vide
                         {
                             if (MeshGenerationOrInstantiateCube)
                             {
@@ -83,13 +80,14 @@ public class ChunkScript : MonoBehaviour
                             else
                             {
                                 setFalse = true;
-                                InstantiateCube();
+                                InstantiateCube(); // on instantie un cube vide (setActive(false))
                             }
                         }
                     }
                     else
                     {
-                        
+                        if (y < 5)
+                        {
                             binaryChunkGrid[currentBlockIndexInArray] = 1;
                             if (MeshGenerationOrInstantiateCube)
                             {
@@ -99,10 +97,23 @@ public class ChunkScript : MonoBehaviour
                             {
                                 InstantiateCube();
                             }
-                        
+                        }
+                        else
+                        {
+                            binaryChunkGrid[currentBlockIndexInArray] = 0;
+                            setFalse = true;
+                            if (MeshGenerationOrInstantiateCube)
+                            {
+
+                            }
+                            else
+                            {
+                                InstantiateCube();
+                            }
+                        }
+
                     }                 
-                    currentBlockIndexInArray++;
-                    //Instantiate(nextBlockToInstantiate, new Vector3(x + currentChunkCoordinate.x, y, z + currentChunkCoordinate.z), transform.rotation);
+                    currentBlockIndexInArray++; // on passe au prochain index dans l'array
                 }
             }
         }
@@ -119,8 +130,6 @@ public class ChunkScript : MonoBehaviour
             currentCubeGameobject.SetActive(false);
 
         }
-        
-        //Debug.Log(2);
         //Debug.Log(cubeGameobjectArray[currentBlockIndexInArray]);
     }
 
@@ -186,4 +195,23 @@ public class ChunkScript : MonoBehaviour
         // x = int - L * z int
         // y = int / L�
     }
+
+    // formules pour passer d'un chunk a l'autre adjacent
+    // servira notement pour les pistons qui poussent d'un chunk vers l'autre
+    /*
+     
+    i = index du bloc de depart
+    L = Largeur du chunk
+
+    i --> index du bloc adjacent dans le chunk adjacent
+
+    +x = i - (L-1)
+    -x = i + (L-1)
+
+    +z = i - ((L-1)*L)
+    -z = i + ((L-1)*L)
+
+    +y = i + (L²*(L-1))
+    -y = i - (L²*(L-1))
+     */
 }
