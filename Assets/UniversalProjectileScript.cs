@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class UniversalProjectileScript : MonoBehaviour
 {
@@ -17,10 +18,13 @@ public class UniversalProjectileScript : MonoBehaviour
     public float explosionRadius;
     [Header("taille")]
     public float size;
+    [Header("destruction")]
+    public float lifeSpan;
     //[Header("destruction")]
 
     void Start()
     {
+        StartCoroutine("LifeSpanTimer");
         sphereCollider = GetComponent<SphereCollider>();
         damageToDeal = baseDamage;
         gameObject.transform.localScale = new Vector3(size, size, size); // modifier la taille de l'objet
@@ -33,6 +37,7 @@ public class UniversalProjectileScript : MonoBehaviour
         {
             SeekTarget();
         }
+        
     }
 
     void OnTriggerEnter(Collider collision) // le collider est un trigger pour passer a travers les ennemis
@@ -52,6 +57,12 @@ public class UniversalProjectileScript : MonoBehaviour
     void SeekTarget()
     {
         transform.LookAt(target.transform.position); // s'oriente vers la position de la cible
+    }
+
+    IEnumerator LifeSpanTimer()
+    {
+        yield return new WaitForSeconds(lifeSpan);
+        InitiateDestruction();
     }
 
     void InitiateDestruction() // detruire

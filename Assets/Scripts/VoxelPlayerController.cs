@@ -555,8 +555,9 @@ public class VoxelPlayerController : MonoBehaviour
 
     void ShootMode() // on instancie l'object projectile dans la rotation du pointeur
     {
-        if (Input.GetMouseButtonDown(0)) // clic gauche
+        if (Input.GetMouseButton(0)) // clic gauche
         {
+            var instantiated = Instantiate(projectile, transform.position, Quaternion.Euler(playerPointerDirection));
             RaycastHit shotHit;
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -568,7 +569,7 @@ public class VoxelPlayerController : MonoBehaviour
                     targetManager.GetComponent<TargetManagerScript>().InstantiateNewTarget();
                     Debug.Log("joueur HIT");
                 }
-                //var instantiated = Instantiate(projectile, transform.position, Quaternion.Euler(playerPointerDirection));
+                
                 //instantiated.GetComponent<ProjectileScript>().instantiator = gameObject;
             }
         }
