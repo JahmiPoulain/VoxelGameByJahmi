@@ -15,6 +15,7 @@ public class UniversalProjectileScript : MonoBehaviour
     [Header("tete chercheuse")]
     public GameObject target;
     [Header("explosion")]
+    public bool explodes;
     public float explosionRadius;
     [Header("taille")]
     public float size;
@@ -36,15 +37,18 @@ public class UniversalProjectileScript : MonoBehaviour
         if (target != null && currentHitsAmount == 0) // si il y a une cible et qu'il n'a rien touche
         {
             SeekTarget();
-        }
-        
+        }        
     }
 
     void OnTriggerEnter(Collider collision) // le collider est un trigger pour passer a travers les ennemis
     {
-        sphereCollider.radius = size * explosionRadius; // l'explosion c'est juste faire grossir la hitbox de base
-        currentHitsAmount++; // compter le nombre de collision
-        if (currentHitsAmount >= hitsBeforeDestroy) // detruire l'objet si il est a court de collision
+        if (explodes)
+        {
+            velocity = 0;
+            sphereCollider.radius = size * explosionRadius; // l'explosion c'est juste faire grossir la hitbox de base
+            StartCoroutine("TimedDestructionInitiation");
+        }
+        else if (currentHitsAmount >= hitsBeforeDestroy) // detruire l'objet si il est a court de collision       
         {
             InitiateDestruction();
         }
@@ -52,6 +56,7 @@ public class UniversalProjectileScript : MonoBehaviour
         {
             collision.gameObject.GetComponent<UniversalEnemyScript>().currentHealthPoint -= damageToDeal; // infliger des degats a l'objet touche
         }
+        currentHitsAmount++; // compter le nombre de collision   
     }
 
     void SeekTarget()
@@ -68,5 +73,11 @@ public class UniversalProjectileScript : MonoBehaviour
     void InitiateDestruction() // detruire
     {
         Destroy(gameObject);
+    }
+
+    IEnumerator TimedDestructionInitiation() // detruire apres 0.1 seconde
+    {
+        yield return new WaitForSeconds(0.1f);
+        InitiateDestruction();
     }
 }

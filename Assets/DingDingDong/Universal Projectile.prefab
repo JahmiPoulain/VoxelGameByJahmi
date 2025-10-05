@@ -137,10 +137,11 @@ MonoBehaviour:
   damageToDeal: 0
   velocity: 30
   sphereCollider: {fileID: 4590020268281562067}
-  hitsBeforeDestroy: 50
+  hitsBeforeDestroy: 1
   currentHitsAmount: 0
   target: {fileID: 0}
-  explosionRadius: 2
+  explodes: 0
+  explosionRadius: 50
   size: 0.3
   lifeSpan: 3
 --- !u!135 &4590020268281562067

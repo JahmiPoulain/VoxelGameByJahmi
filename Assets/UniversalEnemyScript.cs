@@ -1,5 +1,5 @@
 using UnityEngine;
-
+//using TMPro;
 public class UniversalEnemyScript : MonoBehaviour
 {
     public GameObject target;
@@ -9,14 +9,27 @@ public class UniversalEnemyScript : MonoBehaviour
     public bool isWalking;
     public Rigidbody rb;
     public float fallTimer;
+
+    public float oldHP;
+    public GameObject billboard;
     void Start()
     {
         currentHealthPoint = baseHealthPoint;
         isWalking = true;
         rb.useGravity = true;
+        oldHP = currentHealthPoint;
     }
     void Update()
     {
+        if (currentHealthPoint < oldHP) // calculer les degats qu'on a subit
+        {
+            // afficher les degats
+            //billboardText.text = (oldHP - currentHealthPoint).ToString(); 
+            //Debug.Log(oldHP - currentHealthPoint);
+            var instantiated = Instantiate(billboard, transform.position, Quaternion.identity);
+            instantiated.GetComponent<BillboardSpriteScript>().billboardText.text = (oldHP - currentHealthPoint).ToString();
+            oldHP = currentHealthPoint;
+        }
         if (isWalking && fallTimer > 0) // timer pour permettre au rb de grimper les bords de mesh, sans ca il retombe arrive en haut
         {
             fallTimer -= 10 * Time.deltaTime; // c'est moche, pas tres elegant
