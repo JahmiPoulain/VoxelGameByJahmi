@@ -86,7 +86,7 @@ public class ChunkScript : MonoBehaviour
                     }
                     else
                     {
-                        if (y < 5)
+                        if (y < 1)
                         {
                             binaryChunkGrid[currentBlockIndexInArray] = 1;
                             if (MeshGenerationOrInstantiateCube)
