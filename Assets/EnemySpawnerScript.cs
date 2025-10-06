@@ -9,6 +9,8 @@ public class EnemySpawnerScript : MonoBehaviour
     public float maxSpawnDistance;
     public float minSpawnDistance;
     public int maxSpawnStacking;
+
+    public float enemySizeMultiplier;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -39,6 +41,7 @@ public class EnemySpawnerScript : MonoBehaviour
         for (int y = 0; y < Random.Range(1, maxSpawnStacking); y++) // le nombre d'ennemi a empiler au spawn
         {
             var instatiated = Instantiate(enemies[Random.Range(0, enemies.Length)], player.transform.position + new Vector3(rngX, y, rngY), transform.rotation);
+            instatiated.GetComponent<UniversalEnemyScript>().target = player;
             instatiated.GetComponent<UniversalEnemyScript>().target = player;
         }
         StartCoroutine("SpawnTimer");

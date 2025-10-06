@@ -1,28 +1,4 @@
 using UnityEngine;
-<<<<<<< HEAD
-
-public class UniversalProjectileScript : MonoBehaviour
-{
-    [Header("Degats")]
-    public float damageToDeal;
-    [Header("Mouvement")]
-    public float travelSpeed;   
-    public bool isSeeking;
-    [Header("Explosions")]
-    public bool explodes;
-    [Header("Detection des coup")]
-    public int hitsBeforeDestroy;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-=======
 using System.Collections;
 
 public class UniversalProjectileScript : MonoBehaviour
@@ -103,6 +79,5 @@ public class UniversalProjectileScript : MonoBehaviour
     {
         yield return new WaitForSeconds(0.1f);
         InitiateDestruction();
->>>>>>> 54b5b481d58dd98c3cc7794a72523845a5c74890
     }
 }

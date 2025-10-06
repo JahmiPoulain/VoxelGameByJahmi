@@ -130,18 +130,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 6988292342679596631}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93464e477496ede4e9d121d2706e3029, type: 3}
+  m_Script: {fileID: 11500000, guid: 6b85399d3e8633241adb9e9df8277982, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseDamage: 1
+  baseDamage: 5
   damageToDeal: 0
   velocity: 30
   sphereCollider: {fileID: 4590020268281562067}
   hitsBeforeDestroy: 1
   currentHitsAmount: 0
   target: {fileID: 0}
-  explodes: 0
-  explosionRadius: 50
+  explodes: 1
+  explosionRadius: 20
   size: 0.3
   lifeSpan: 3
 --- !u!135 &4590020268281562067
