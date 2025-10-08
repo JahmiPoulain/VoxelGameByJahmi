@@ -56,7 +56,7 @@ public class VoxelPlayerController : MonoBehaviour
     public Vector3 realLeftClickBlockPosition; // les coordonee du clic gauche a la fin de l'algo
 
     [Header("Chunk")]
-    public GameObject testChunk; // pour chuchter a l'oreil du chunk
+    public GameObject testChunk; // pour chuchoter a l'oreil du chunk
 
     // tirer
     [Header("tirer")]
@@ -71,6 +71,8 @@ public class VoxelPlayerController : MonoBehaviour
     public bool clicBreakingOrAutomatic;
     public GameObject directionArrow;
 
+    [Header("DDD")]
+    public int[] playerObjectsArray;
     void Start()
     {
         Cursor.visible = false; // Rendre la sourirs invisible
@@ -593,5 +595,10 @@ public class VoxelPlayerController : MonoBehaviour
                 //instantiated.GetComponent<ProjectileScript>().instantiator = gameObject;
             }
         }
+    }
+
+    void ID0()
+    {
+
     }
 }
