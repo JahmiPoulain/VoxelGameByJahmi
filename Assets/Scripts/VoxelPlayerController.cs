@@ -69,6 +69,7 @@ public class VoxelPlayerController : MonoBehaviour
     public bool newPlayerClickOrOld;
     public bool FaceOrientationLog;
     public bool clicBreakingOrAutomatic;
+    public GameObject directionArrow;
 
     void Start()
     {
@@ -160,8 +161,27 @@ public class VoxelPlayerController : MonoBehaviour
 
     void PlayerXZMovementNew() // mouvement normalise qui ne derive pas
     {
-        directionMovement = (transform.forward * Input.GetAxisRaw("Vertical")) + (transform.right * Input.GetAxisRaw("Horizontal")); //+ jumpV3; // Input.GetAxis() donne un float adoucis entre 1 et -1
-        rb.position += directionMovement.normalized * playerMaxMovementSpeed * Time.fixedDeltaTime;
+        directionMovement = ((transform.forward * Input.GetAxisRaw("Vertical")) + (transform.right * Input.GetAxisRaw("Horizontal"))).normalized; //+ jumpV3; // Input.GetAxis() donne un float adoucis entre 1 et -1
+        //rb.position += directionMovement.normalized * playerMaxMovementSpeed * Time.fixedDeltaTime;
+
+        RaycastHit hit;
+        if (Physics.CapsuleCast(transform.position + new Vector3(0, 0.5f, 0), transform.position + new Vector3(0, -0.5f, 0), 0.5f, directionMovement, out hit, 0.1f)) // on verifie si il y a un obstacle dans la direction du mouvement
+        {
+            // si oui on prends la position de la collision et on trouve la direction opposee par rapport au mouvement pour "glisser" contre les murs
+
+            /*if (hit.point.normalized > directionMovement)
+            {
+                directionMovement -= hit.point.normalized;
+            }
+            else
+            {*/
+                directionMovement += new Vector3(hit.point.x,0, hit.point.z).normalized;
+           // }
+            //Debug.Log("Hit: " + hit.collider.name + " at " + hit.point);
+        }
+
+        directionArrow.transform.rotation = Quaternion.EulerAngles(directionMovement);
+        transform.position += directionMovement * playerMaxMovementSpeed * Time.fixedDeltaTime;
         directionMovement.y = vitesseVerticaleActuelle;
         //directionMovement = Input.GetAxisRaw("Horizontal"); // Input.GetAxisRaw() donne 1, 0 ou -1        
 
